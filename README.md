@@ -1,3 +1,11 @@
+A fork of OpenAI's baselines, with support for [gym-micropolis](https://github.com/smearle/gym-micropolis) (without model-saving). To run, from this directory, do, e.g.,
+```
+source .bashrc
+export OPENAI_LOGDIR=logs/path/to/save
+python3  -m baselines.run --alg=acktr --env=MicropolisEnv-v0 --num_timesteps=2e7 --save_path=$OPENAI_LOGDIR --log_interval=1 --network=micropolis_cnn --num_env=50
+```
+which will use ACKTR to train a convolutional network with a skip connection to play on a small map, with reward for population differences.
+
 <img src="data/logo.jpg" width=25% align="right" /> [![Build status](https://travis-ci.org/openai/baselines.svg?branch=master)](https://travis-ci.org/openai/baselines)
 
 # Baselines
