@@ -96,7 +96,7 @@ def learn(network, env, seed, total_timesteps=int(40e6), gamma=0.99, log_interva
     set_global_seeds(seed)
 
 
-    if network == 'cnn':
+    if network == 'cnn' or network == 'micropolis_cnn':
         network_kwargs['one_dim_bias'] = True
 
     policy = build_policy(env, network, **network_kwargs)
@@ -141,6 +141,9 @@ def learn(network, env, seed, total_timesteps=int(40e6), gamma=0.99, log_interva
             logger.record_tabular("policy_loss", float(policy_loss))
             logger.record_tabular("value_loss", float(value_loss))
             logger.record_tabular("explained_variance", float(ev))
+            logger.record_tabular("average reward", sum(rewards) / len(rewards))
+            logger.record_tabular("reward", sum(rewards))
+
             logger.dump_tabular()
 
         if save_interval and (update % save_interval == 0 or update == 1) and logger.get_dir():

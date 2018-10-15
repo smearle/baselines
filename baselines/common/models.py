@@ -13,6 +13,71 @@ def register(name):
         return func
     return _thunk
 
+### micropolis models ###
+
+
+@register("micropolis_cnn_lstm")
+def micropolis_cnn_lstm(nlstm=128, layer_norm=False, **conv_kwargs):
+    def network_fn(X, nenv=1):
+        nbatch = X.shape[0]
+        nsteps = nbatch // nenv
+
+        h = micropolis_cnn(X, **conv_kwargs)
+
+        M = tf.placeholder(tf.float32, [nbatch]) #mask (done t-1)
+        S = tf.placeholder(tf.float32, [nenv, 2*nlstm]) #states
+
+        xs = batch_to_seq(h, nenv, nsteps)
+        ms = batch_to_seq(M, nenv, nsteps)
+
+        if layer_norm:
+            h5, snew = utils.lnlstm(xs, ms, S, scope='lnlstm', nh=nlstm)
+        else:
+            h5, snew = utils.lstm(xs, ms, S, scope='lstm', nh=nlstm)
+
+        h = seq_to_batch(h5)
+        initial_state = np.zeros(S.shape.as_list(), dtype=float)
+
+        return h, {'S':S, 'M':M, 'state':snew, 'initial_state':initial_state}
+
+    return network_fn
+
+@register('micropolis_cnn')
+def micropolis_cnn(**conv_kwargs):
+    """
+    CNN for micropolis.
+    """
+    def network_fn(X): 
+        activ = tf.nn.relu
+        h = activ(conv(X, 'c1', nf=32, rf=3, stride=1, pad='VALID', init_scale=np.sqrt(2), **conv_kwargs))
+       #h2 = activ(conv(h, 'c2', nf=64, rf=3, stride=1, pad='VALID', init_scale=np.sqrt(2), **conv_kwargs))
+        h3 = activ(conv(h, 'c3', nf=64, rf=3, stride=1, pad='VALID', init_scale=np.sqrt(2), **conv_kwargs))
+        h4 = activ(conv(h3, 'c4', nf=64, rf=2, stride=1, pad='VALID', init_scale=np.sqrt(2), **conv_kwargs))
+        h4 = conv_to_fc(h4)
+        x = conv_to_fc(X)
+        x = tf.concat(axis=1, values=[x, h4])
+        return activ(fc(x, 'fc1', nh=64, init_scale=np.sqrt(2)))
+    
+    return network_fn
+
+
+@register('mlp_128')
+def mlp_128(num_layers=2, num_hidden=128, activation=tf.tanh, layer_norm=False):
+    def network_fn(X):
+        h = tf.layers.flatten(X)
+        for i in range(num_layers):
+            h = fc(h, 'mlp_fc{}'.format(i), nh=num_hidden, init_scale=np.sqrt(2))
+            if layer_norm:
+                h = tf.contrib.layers.layer_norm(h, center=True, scale=True)
+            h = activation(h)
+
+        return h
+
+    return network_fn
+
+#########################
+
+@register('nature_cnn')
 def nature_cnn(unscaled_images, **conv_kwargs):
     """
     CNN from Nature paper.

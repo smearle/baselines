@@ -221,6 +221,9 @@ def learn(
             logger.record_tabular("policy_entropy", float(policy_entropy))
             logger.record_tabular("value_loss", float(value_loss))
             logger.record_tabular("explained_variance", float(ev))
+            ### micropolis ###
+            logger.record_tabular("reward", sum(rewards))
+            ##################
             logger.dump_tabular()
     return model
 

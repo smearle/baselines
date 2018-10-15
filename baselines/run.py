@@ -39,6 +39,10 @@ for env in gym.envs.registry.all():
 # reading benchmark names directly from retro requires
 # importing retro here, and for some reason that crashes tensorflow
 # in ubuntu
+import gym_micropolis
+_game_envs['micropolis'] = {
+    'MicropolisEnv-v0'
+}
 _game_envs['retro'] = {
     'BubbleBobble-Nes',
     'SuperMarioBros-Nes',
