@@ -1,8 +1,9 @@
 A fork of OpenAI's baselines, with support for [gym-micropolis](https://github.com/smearle/gym-micropolis) (without model-saving). To run, from this directory, do, e.g.,
 ```
-source .bashrc
-export OPENAI_LOGDIR=logs/path/to/save
-python3  -m baselines.run --alg=acktr --env=MicropolisEnv-v0 --num_timesteps=2e7 --save_path=$OPENAI_LOGDIR --log_interval=1 --network=micropolis_cnn --num_env=50
+export PYTHONPATH=/path/to/gym-micropolis 
+export OPENAI_LOG_FORMAT='stdout,log,csv,tensorboard' # formats are comma-separated, but for tensorboard you only really need the last one
+export OPENAI_LOGDIR= logs/tensorboard/
+python3  -m baselines.run --alg=acktr --env=MicropolisEnv-v0 --num_timesteps=2e7 --save_path=logs/models --log_interval=1 --network=micropolis_cnn --num_env=50
 ```
 which will use ACKTR to train a convolutional network with a skip connection to play on a small map, with reward for population differences.
 
