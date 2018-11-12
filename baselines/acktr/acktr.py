@@ -31,6 +31,9 @@ class Model(object):
             self.model = step_model = policy(nenvs, 1, sess=sess)
             self.model2 = train_model = policy(nenvs*nsteps, nsteps, sess=sess)
 
+        print(self.model)
+        print(self.model2)
+
         neglogpac = train_model.pd.neglogp(A)
         self.logits = train_model.pi
 
@@ -142,8 +145,6 @@ def learn(network, env, seed, total_timesteps=int(40e6), gamma=0.99, log_interva
             logger.record_tabular("value_loss", float(value_loss))
             logger.record_tabular("explained_variance", float(ev))
             logger.record_tabular("average reward", sum(rewards) / len(rewards))
-            logger.record_tabular("reward", sum(rewards))
-
             logger.dump_tabular()
 
         if save_interval and (update % save_interval == 0 or update == 1) and logger.get_dir():

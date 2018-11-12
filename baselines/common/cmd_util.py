@@ -29,8 +29,8 @@ def make_vec_env(env_id, env_type, num_env, seed, wrapper_kwargs=None, start_ind
         def _thunk():
             env = make_atari(env_id) if env_type == 'atari' else gym.make(env_id)
             if env_type == 'micropolis': 
-                env.setMapSize(6)
-                print('\n{}\n'.format(env.micro.map.static_builds))
+                print(wrapper_kwargs)
+                env.setMapSize(10)
                 if rank == 0:
                     env.print_map = True
             env.seed(seed + 10000*mpi_rank + rank if seed is not None else None)
